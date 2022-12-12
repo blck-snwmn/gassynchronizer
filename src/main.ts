@@ -2,7 +2,7 @@ function serialize() {
     const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
     const sheet = spreadsheet.getSheetByName('master')
     if (sheet === null){
-        console.log("failed: sheet(name is 'master') is not found")
+        console.log("failed: sheet(name is 'master') is not found.")
         return
     }
     const x = sheet.getRange('A:C')
