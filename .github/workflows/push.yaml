@@ -1,0 +1,25 @@
+name: clasp_push
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deployment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+      - name: node install
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - name: install clasp
+        run: npm install -g @google/clasp
+      - name: create clasprc.json
+        run: cat ${{ secrets.CLASP_JSON }} >  .clasp.json
+      - name: create clasp.json
+        run: cat ${{ secrets.CLASPRC_JSON }} >  ~/.clasprc.json
+      - name: deploy
+        run: clasp push
