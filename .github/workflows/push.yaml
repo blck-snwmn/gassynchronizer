@@ -18,8 +18,8 @@ jobs:
       - name: install clasp
         run: npm install -g @google/clasp
       - name: create clasp.json
-        run: cat '${{ secrets.CLASP_JSON }}' >  .clasp.json
+        run: echo '${{ secrets.CLASP_JSON }}' >  .clasp.json
       - name: create clasprc.json
-        run: cat '${{ secrets.CLASPRC_JSON }}' >  ~/.clasprc.json
+        run: echo '${{ secrets.CLASPRC_JSON }}' >  ~/.clasprc.json
       - name: deploy
         run: clasp push
