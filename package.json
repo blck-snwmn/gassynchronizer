@@ -2,7 +2,7 @@
   "name": "gassynchronizer",
   "version": "1.0.0",
   "description": "",
-  "main": "index.ts",
+  "main": "src/main.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
