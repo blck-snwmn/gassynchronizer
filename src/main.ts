@@ -12,6 +12,7 @@ function serialize() {
     for (const vs of values) {
         let j : Record<string, string> = {}
         if (vs[0] === '') {
+            // skip if cell value is empty
             break
         }
         jsonkeys.forEach((v, i) => {
