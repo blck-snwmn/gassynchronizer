@@ -1,10 +1,4 @@
-function serialize() {
-    const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
-    const sheet = spreadsheet.getSheetByName('master')
-    if (sheet === null){
-        console.log("failed: sheet(name is 'master') is not found.")
-        return
-    }
+function serialize(sheet: GoogleAppsScript.Spreadsheet.Sheet) {
     const x = sheet.getRange('A:C')
     const v = x.getValues().map(v => v.map(String))
     const [jsonkeys, ...values] = v // head(jsonkeys) is json key
@@ -19,11 +13,24 @@ function serialize() {
         })
         js.push(j)
     }
-    const json = JSON.stringify(js)
+    return JSON.stringify(js)
+}
+
+function main() {
+    const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+    const sheet = spreadsheet.getSheetByName('master')
+    if (sheet === null){
+        console.log("failed: sheet(name is 'master') is not found.")
+        return
+    }
+    const json  = serialize(sheet)
+    if (json === undefined){
+        return
+    }
     console.log(json)
 }
 
 function onOpen(){
     const sheet = SpreadsheetApp.getActiveSpreadsheet();
-    sheet.addMenu("メニュー", [{name: "json", functionName: "serialize"}]);
+    sheet.addMenu("メニュー", [{name: "json", functionName: "main"}]);
 }
