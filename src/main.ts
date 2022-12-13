@@ -2,9 +2,9 @@ function serialize(sheet: GoogleAppsScript.Spreadsheet.Sheet) {
     const x = sheet.getRange('A:C')
     const v = x.getValues().map(v => v.map(String))
     const [jsonkeys, ...values] = v // head(jsonkeys) is json key
-    let js : Record<string, string>[] = []; 
+    let js: Record<string, string>[] = [];
     for (const vs of values) {
-        let j : Record<string, string> = {}
+        let j: Record<string, string> = {}
         if (vs[0] === '') {
             break  // skip if cell value is empty
         }
@@ -19,15 +19,15 @@ function serialize(sheet: GoogleAppsScript.Spreadsheet.Sheet) {
 function main() {
     const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
     const sheet = spreadsheet.getSheetByName('master')
-    if (sheet === null){
+    if (sheet === null) {
         console.log("failed: sheet(name is 'master') is not found.")
         return
     }
-    const json  = serialize(sheet)
+    const json = serialize(sheet)
     console.log(json)
 }
 
-function onOpen(){
+function onOpen() {
     const sheet = SpreadsheetApp.getActiveSpreadsheet();
-    sheet.addMenu("メニュー", [{name: "json", functionName: "main"}]);
+    sheet.addMenu("メニュー", [{ name: "json", functionName: "main" }]);
 }
