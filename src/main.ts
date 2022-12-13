@@ -24,9 +24,6 @@ function main() {
         return
     }
     const json  = serialize(sheet)
-    if (json === undefined){
-        return
-    }
     console.log(json)
 }
 
