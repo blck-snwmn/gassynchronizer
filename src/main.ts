@@ -16,6 +16,139 @@ function serialize(sheet: GoogleAppsScript.Spreadsheet.Sheet) {
     return JSON.stringify(js)
 }
 
+type Sha = { sha: string }
+
+function createBlob(u: string, pat: string, json: string): string {
+    const payload = {
+        "content": JSON.stringify(json),
+        "encoding": "utf-8",
+    }
+    const url = u + '/git/blobs'
+    const resp = UrlFetchApp.fetch(url, {
+        method: "post",
+        contentType: "application/json",
+        payload: JSON.stringify(payload),
+        headers: {
+            "authorization": `Bearer ${pat}`,
+            "X-GitHub-Api-Version": "2022-11-28",
+            "Accept": "application/vnd.github+json"
+        },
+    })
+    console.log(resp.getResponseCode().toString())
+    console.log(resp.getContentText())
+
+    return (JSON.parse(resp.getContentText()) as Sha).sha
+}
+
+function getTree(u: string, pat: string, branchName: string): string {
+    const url = `${u}/git/trees/${branchName}`
+    const resp = UrlFetchApp.fetch(url, {
+        method: "get",
+        headers: {
+            "authorization": `Bearer ${pat}`,
+            "X-GitHub-Api-Version": "2022-11-28",
+        },
+    })
+    console.log(resp.getResponseCode().toString())
+    console.log(resp.getContentText())
+
+    return (JSON.parse(resp.getContentText()) as Sha).sha
+}
+
+
+function createBranch(u: string, pat: string, newBranchName: string, baseSha: string): string {
+    const payload = {
+        "ref": "refs/heads/" + newBranchName,
+        "sha": baseSha,
+    }
+    const url = u + '/git/refs'
+    const resp = UrlFetchApp.fetch(url, {
+        method: "post",
+        contentType: "application/json",
+        payload: JSON.stringify(payload),
+        headers: {
+            "authorization": `Bearer ${pat}`,
+            "X-GitHub-Api-Version": "2022-11-28",
+            "Accept": "application/vnd.github+json"
+        },
+    })
+    console.log(resp.getResponseCode().toString())
+    console.log(resp.getContentText())
+
+    return (JSON.parse(resp.getContentText()) as { object: Sha }).object.sha
+}
+
+function createTree(u: string, pat: string, fileName: string, blobSha: string, baseSha: string): string {
+    const payload = {
+        "tree": [
+            {
+                "path": fileName,
+                "mode": "100644",
+                "type": "blob",
+                "sha": blobSha,
+            },
+        ],
+        "base_tree": baseSha
+    }
+    const url = u + '/git/trees'
+    const resp = UrlFetchApp.fetch(url, {
+        method: "post",
+        contentType: "application/json",
+        payload: JSON.stringify(payload),
+        headers: {
+            "authorization": `Bearer ${pat}`,
+            "X-GitHub-Api-Version": "2022-11-28",
+            "Accept": "application/vnd.github+json"
+        },
+    })
+    console.log(resp.getResponseCode().toString())
+    console.log(resp.getContentText())
+
+    return (JSON.parse(resp.getContentText()) as Sha).sha
+}
+
+function createCommit(u: string, pat: string, treeSha: string, parentSha: string): string {
+    const payload = {
+        "tree": treeSha,
+        "message": "Sync json",
+        "parents": [parentSha]
+    }
+    const url = u + '/git/commits'
+    const resp = UrlFetchApp.fetch(url, {
+        method: "post",
+        contentType: "application/json",
+        payload: JSON.stringify(payload),
+        headers: {
+            "authorization": `Bearer ${pat}`,
+            "X-GitHub-Api-Version": "2022-11-28",
+            "Accept": "application/vnd.github+json"
+        },
+    })
+    console.log(resp.getResponseCode().toString())
+    console.log(resp.getContentText())
+
+    return (JSON.parse(resp.getContentText()) as Sha).sha
+}
+
+function updateBranch(u: string, pat: string, newBranchName: string, commitSha: string) {
+    const payload = {
+        "sha": commitSha,
+    }
+    const url = `${u}/git/refs/heads/${newBranchName}`
+    const resp = UrlFetchApp.fetch(url, {
+        method: "patch",
+        contentType: "application/json",
+        payload: JSON.stringify(payload),
+        headers: {
+            "authorization": `Bearer ${pat}`,
+            "X-GitHub-Api-Version": "2022-11-28",
+            "Accept": "application/vnd.github+json"
+        },
+    })
+    console.log(resp.getResponseCode().toString())
+    console.log(resp.getContentText())
+}
+
 function main() {
     const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
     const sheet = spreadsheet.getSheetByName('master')
@@ -25,6 +158,28 @@ function main() {
     }
     const json = serialize(sheet)
     console.log(json)
+
+    const pat = PropertiesService.getScriptProperties().getProperty('GITHUB_PAT')
+    if (pat === null) {
+        console.log("failed: sheet(name is 'master') is not found.")
+        return
+    }
+
+    const username = "blck-snwmn"
+    const repo = "github-playground"
+    const url = `https://api.github.com/repos/${username}/${repo}`
+
+    const basebranchName = "main"
+    const currentTreeSha = getTree(url, pat, basebranchName)
+
+    const branchName = "feat/gasjson"
+    const branchSha = createBranch(url, pat, branchName, currentTreeSha)
+
+    const blobSha = createBlob(url, pat, json)
+    const createdTreeSha = createTree(url, pat, "sample.json", blobSha, branchSha)
+    const commitSha = createCommit(url, pat, createdTreeSha, branchSha)
+
+    updateBranch(url, pat, branchName, commitSha)
 }
 
 function onOpen() {
