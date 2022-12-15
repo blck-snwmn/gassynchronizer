@@ -22,8 +22,14 @@ class GitHub {
         this.pat = pat
     }
 
-    doRequest<T=Response>(url: string, method: "post" | "patch" | "get", payload: object): T {
-        const resp = UrlFetchApp.fetch(url, {
+    doRequest<T = Response>(url: string, method: "post" | "patch" | "get", payload: object): T {
+        const options: GoogleAppsScript.URL_Fetch.URLFetchRequestOptions = method === 'get' ? {
+            method: method,
+            headers: {
+                "authorization": `Bearer ${this.pat}`,
+                "X-GitHub-Api-Version": "2022-11-28",
+            },
+        } : {
             method: method,
             contentType: "application/json",
             payload: JSON.stringify(payload),
@@ -32,7 +38,8 @@ class GitHub {
                 "X-GitHub-Api-Version": "2022-11-28",
                 "Accept": "application/vnd.github+json"
             },
-        })
+        }
+        const resp = UrlFetchApp.fetch(url, options)
         console.log(resp.getResponseCode().toString())
         console.log(resp.getContentText())
 
@@ -51,18 +58,8 @@ function createBlob(u: string, pat: string, json: string): string {
 }
 
 function getTree(u: string, pat: string, branchName: string): string {
-    const url = `${u}/git/trees/${branchName}`
-    const resp = UrlFetchApp.fetch(url, {
-        method: "get",
-        headers: {
-            "authorization": `Bearer ${pat}`,
-            "X-GitHub-Api-Version": "2022-11-28",
-        },
-    })
-    console.log(resp.getResponseCode().toString())
-    console.log(resp.getContentText())
-
-    return (JSON.parse(resp.getContentText()) as Response).sha
+    const resp = (new GitHub(pat)).doRequest(`${u}/git/trees/${branchName}`, "get", {})
+    return resp.sha
 }
 
 
