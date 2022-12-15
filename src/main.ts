@@ -132,10 +132,11 @@ function updateBranch(u: string, pat: string, newBranchName: string, commitSha: 
 }
 
 function main() {
+    const sheetName = 'master'
     const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
-    const sheet = spreadsheet.getSheetByName('master')
+    const sheet = spreadsheet.getSheetByName(sheetName)
     if (sheet === null) {
-        console.log("failed: sheet(name is 'master') is not found.")
+        console.log(`failed: sheet(name is '${sheetName}') is not found.`)
         return
     }
     const json = serialize(sheet)
