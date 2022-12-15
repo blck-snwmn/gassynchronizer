@@ -18,8 +18,10 @@ function serialize(sheet: GoogleAppsScript.Spreadsheet.Sheet) {
 
 class GitHub {
     pat: string
-    constructor(pat: string) {
+    baseURL: string
+    constructor(pat: string, username: string, repo: string) {
         this.pat = pat
+        this.baseURL = `https://api.github.com/repos/${username}/${repo}`
     }
 
     doRequest<T = Response>(url: string, method: "post" | "patch" | "get", payload: object): T {
@@ -45,61 +47,62 @@ class GitHub {
 
         return (JSON.parse(resp.getContentText()) as T)
     }
+
+    createBlob(json: string): string {
+        const resp = this.doRequest(this.baseURL + '/git/blobs', "post", {
+            "content": JSON.stringify(json),
+            "encoding": "utf-8",
+        })
+        return resp.sha
+    }
+
+
+    getTree(branchName: string): string {
+        const resp = this.doRequest(`${this.baseURL}/git/trees/${branchName}`, "get", {})
+        return resp.sha
+    }
+
+
+    createBranch(newBranchName: string, baseSha: string): string {
+        const resp = this.doRequest<{ object: Response }>(this.baseURL + '/git/refs', "post", {
+            "ref": "refs/heads/" + newBranchName,
+            "sha": baseSha,
+        })
+        return resp.object.sha
+    }
+
+    createTree(fileName: string, blobSha: string, baseSha: string): string {
+        const resp = this.doRequest(this.baseURL + '/git/trees', "post", {
+            "tree": [
+                {
+                    "path": fileName,
+                    "mode": "100644",
+                    "type": "blob",
+                    "sha": blobSha,
+                },
+            ],
+            "base_tree": baseSha
+        })
+        return resp.sha
+    }
+
+    createCommit(treeSha: string, parentSha: string): string {
+        const resp = this.doRequest(this.baseURL + '/git/commits', "post", {
+            "tree": treeSha,
+            "message": "Sync json",
+            "parents": [parentSha]
+        })
+        return resp.sha
+    }
+
+    updateBranch(newBranchName: string, commitSha: string) {
+        this.doRequest(`${this.baseURL}/git/refs/heads/${newBranchName}`, "patch", {
+            "sha": commitSha,
+        })
+    }
 }
 
 type Response = { sha: string }
-
-function createBlob(u: string, pat: string, json: string): string {
-    const resp = (new GitHub(pat)).doRequest(u + '/git/blobs', "post", {
-        "content": JSON.stringify(json),
-        "encoding": "utf-8",
-    })
-    return resp.sha
-}
-
-function getTree(u: string, pat: string, branchName: string): string {
-    const resp = (new GitHub(pat)).doRequest(`${u}/git/trees/${branchName}`, "get", {})
-    return resp.sha
-}
-
-
-function createBranch(u: string, pat: string, newBranchName: string, baseSha: string): string {
-    const resp = (new GitHub(pat)).doRequest<{ object: Response }>(u + '/git/refs', "post", {
-        "ref": "refs/heads/" + newBranchName,
-        "sha": baseSha,
-    })
-    return resp.object.sha
-}
-
-function createTree(u: string, pat: string, fileName: string, blobSha: string, baseSha: string): string {
-    const resp = (new GitHub(pat)).doRequest(u + '/git/trees', "post", {
-        "tree": [
-            {
-                "path": fileName,
-                "mode": "100644",
-                "type": "blob",
-                "sha": blobSha,
-            },
-        ],
-        "base_tree": baseSha
-    })
-    return resp.sha
-}
-
-function createCommit(u: string, pat: string, treeSha: string, parentSha: string): string {
-    const resp = (new GitHub(pat)).doRequest(u + '/git/commits', "post", {
-        "tree": treeSha,
-        "message": "Sync json",
-        "parents": [parentSha]
-    })
-    return resp.sha
-}
-
-function updateBranch(u: string, pat: string, newBranchName: string, commitSha: string) {
-    (new GitHub(pat)).doRequest(`${u}/git/refs/heads/${newBranchName}`, "patch", {
-        "sha": commitSha,
-    })
-}
 
 function main() {
     const sheetName = 'master'
@@ -120,19 +123,19 @@ function main() {
 
     const username = "blck-snwmn"
     const repo = "github-playground"
-    const url = `https://api.github.com/repos/${username}/${repo}`
+    const g = new GitHub(pat, username, repo)
 
     const basebranchName = "main"
-    const currentTreeSha = getTree(url, pat, basebranchName)
+    const currentTreeSha = g.getTree(basebranchName)
 
     const branchName = "feat/gasjson"
-    const branchSha = createBranch(url, pat, branchName, currentTreeSha)
+    const branchSha = g.createBranch(branchName, currentTreeSha)
 
-    const blobSha = createBlob(url, pat, json)
-    const createdTreeSha = createTree(url, pat, "sample.json", blobSha, branchSha)
-    const commitSha = createCommit(url, pat, createdTreeSha, branchSha)
+    const blobSha = g.createBlob(json)
+    const createdTreeSha = g.createTree("sample.json", blobSha, branchSha)
+    const commitSha = g.createCommit(createdTreeSha, branchSha)
 
-    updateBranch(url, pat, branchName, commitSha)
+    g.updateBranch(branchName, commitSha)
 }
 
 function onOpen() {
