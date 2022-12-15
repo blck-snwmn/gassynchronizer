@@ -89,7 +89,7 @@ function createBranch(u: string, pat: string, newBranchName: string, baseSha: st
 }
 
 function createTree(u: string, pat: string, fileName: string, blobSha: string, baseSha: string): string {
-    const payload = {
+    const resp = (new GitHub(pat)).doRequest(u + '/git/trees', {
         "tree": [
             {
                 "path": fileName,
@@ -99,45 +99,17 @@ function createTree(u: string, pat: string, fileName: string, blobSha: string, b
             },
         ],
         "base_tree": baseSha
-    }
-    const url = u + '/git/trees'
-    const resp = UrlFetchApp.fetch(url, {
-        method: "post",
-        contentType: "application/json",
-        payload: JSON.stringify(payload),
-        headers: {
-            "authorization": `Bearer ${pat}`,
-            "X-GitHub-Api-Version": "2022-11-28",
-            "Accept": "application/vnd.github+json"
-        },
     })
-    console.log(resp.getResponseCode().toString())
-    console.log(resp.getContentText())
-
-    return (JSON.parse(resp.getContentText()) as Response).sha
+    return resp.sha
 }
 
 function createCommit(u: string, pat: string, treeSha: string, parentSha: string): string {
-    const payload = {
+    const resp = (new GitHub(pat)).doRequest(u +'/git/commits', {
         "tree": treeSha,
         "message": "Sync json",
         "parents": [parentSha]
-    }
-    const url = u + '/git/commits'
-    const resp = UrlFetchApp.fetch(url, {
-        method: "post",
-        contentType: "application/json",
-        payload: JSON.stringify(payload),
-        headers: {
-            "authorization": `Bearer ${pat}`,
-            "X-GitHub-Api-Version": "2022-11-28",
-            "Accept": "application/vnd.github+json"
-        },
     })
-    console.log(resp.getResponseCode().toString())
-    console.log(resp.getContentText())
-
-    return (JSON.parse(resp.getContentText()) as Response).sha
+    return resp.sha
 }
 
 function updateBranch(u: string, pat: string, newBranchName: string, commitSha: string) {
