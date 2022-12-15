@@ -16,28 +16,38 @@ function serialize(sheet: GoogleAppsScript.Spreadsheet.Sheet) {
     return JSON.stringify(js)
 }
 
+class GitHub {
+    pat: string
+    constructor(pat: string) {
+        this.pat = pat
+    }
+
+    doRequest(url: string, payload: object): Response {
+        const resp = UrlFetchApp.fetch(url, {
+            method: "post",
+            contentType: "application/json",
+            payload: JSON.stringify(payload),
+            headers: {
+                "authorization": `Bearer ${this.pat}`,
+                "X-GitHub-Api-Version": "2022-11-28",
+                "Accept": "application/vnd.github+json"
+            },
+        })
+        console.log(resp.getResponseCode().toString())
+        console.log(resp.getContentText())
+
+        return (JSON.parse(resp.getContentText()) as Response)
+    }
+}
+
 type Response = { sha: string }
 
 function createBlob(u: string, pat: string, json: string): string {
-    const payload = {
+    const resp = (new GitHub(pat)).doRequest(u + '/git/blobs', {
         "content": JSON.stringify(json),
         "encoding": "utf-8",
-    }
-    const url = u + '/git/blobs'
-    const resp = UrlFetchApp.fetch(url, {
-        method: "post",
-        contentType: "application/json",
-        payload: JSON.stringify(payload),
-        headers: {
-            "authorization": `Bearer ${pat}`,
-            "X-GitHub-Api-Version": "2022-11-28",
-            "Accept": "application/vnd.github+json"
-        },
     })
-    console.log(resp.getResponseCode().toString())
-    console.log(resp.getContentText())
-
-    return (JSON.parse(resp.getContentText()) as Response).sha
+    return resp.sha
 }
 
 function getTree(u: string, pat: string, branchName: string): string {
