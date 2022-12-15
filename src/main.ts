@@ -113,22 +113,9 @@ function createCommit(u: string, pat: string, treeSha: string, parentSha: string
 }
 
 function updateBranch(u: string, pat: string, newBranchName: string, commitSha: string) {
-    const payload = {
+    (new GitHub(pat)).doRequest(`${u}/git/refs/heads/${newBranchName}`, "patch", {
         "sha": commitSha,
-    }
-    const url = `${u}/git/refs/heads/${newBranchName}`
-    const resp = UrlFetchApp.fetch(url, {
-        method: "patch",
-        contentType: "application/json",
-        payload: JSON.stringify(payload),
-        headers: {
-            "authorization": `Bearer ${pat}`,
-            "X-GitHub-Api-Version": "2022-11-28",
-            "Accept": "application/vnd.github+json"
-        },
     })
-    console.log(resp.getResponseCode().toString())
-    console.log(resp.getContentText())
 }
 
 function main() {
