@@ -144,7 +144,7 @@ function main() {
 
     const pat = PropertiesService.getScriptProperties().getProperty('GITHUB_PAT')
     if (pat === null) {
-        console.log("failed: sheet(name is 'master') is not found.")
+        console.log("failed: `GITHUB_PAT` property is not found.")
         return
     }
 
