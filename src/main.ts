@@ -22,9 +22,9 @@ class GitHub {
         this.pat = pat
     }
 
-    doRequest(url: string, payload: object): Response {
+    doRequest(url: string, method: "post" | "patch" | "get", payload: object): Response {
         const resp = UrlFetchApp.fetch(url, {
-            method: "post",
+            method: method,
             contentType: "application/json",
             payload: JSON.stringify(payload),
             headers: {
@@ -43,7 +43,7 @@ class GitHub {
 type Response = { sha: string }
 
 function createBlob(u: string, pat: string, json: string): string {
-    const resp = (new GitHub(pat)).doRequest(u + '/git/blobs', {
+    const resp = (new GitHub(pat)).doRequest(u + '/git/blobs', "post", {
         "content": JSON.stringify(json),
         "encoding": "utf-8",
     })
@@ -89,7 +89,7 @@ function createBranch(u: string, pat: string, newBranchName: string, baseSha: st
 }
 
 function createTree(u: string, pat: string, fileName: string, blobSha: string, baseSha: string): string {
-    const resp = (new GitHub(pat)).doRequest(u + '/git/trees', {
+    const resp = (new GitHub(pat)).doRequest(u + '/git/trees', "post", {
         "tree": [
             {
                 "path": fileName,
@@ -104,7 +104,7 @@ function createTree(u: string, pat: string, fileName: string, blobSha: string, b
 }
 
 function createCommit(u: string, pat: string, treeSha: string, parentSha: string): string {
-    const resp = (new GitHub(pat)).doRequest(u +'/git/commits', {
+    const resp = (new GitHub(pat)).doRequest(u + '/git/commits', "post", {
         "tree": treeSha,
         "message": "Sync json",
         "parents": [parentSha]
