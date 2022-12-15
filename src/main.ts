@@ -16,7 +16,7 @@ function serialize(sheet: GoogleAppsScript.Spreadsheet.Sheet) {
     return JSON.stringify(js)
 }
 
-type Sha = { sha: string }
+type Response = { sha: string }
 
 function createBlob(u: string, pat: string, json: string): string {
     const payload = {
@@ -37,7 +37,7 @@ function createBlob(u: string, pat: string, json: string): string {
     console.log(resp.getResponseCode().toString())
     console.log(resp.getContentText())
 
-    return (JSON.parse(resp.getContentText()) as Sha).sha
+    return (JSON.parse(resp.getContentText()) as Response).sha
 }
 
 function getTree(u: string, pat: string, branchName: string): string {
@@ -52,7 +52,7 @@ function getTree(u: string, pat: string, branchName: string): string {
     console.log(resp.getResponseCode().toString())
     console.log(resp.getContentText())
 
-    return (JSON.parse(resp.getContentText()) as Sha).sha
+    return (JSON.parse(resp.getContentText()) as Response).sha
 }
 
 
@@ -75,7 +75,7 @@ function createBranch(u: string, pat: string, newBranchName: string, baseSha: st
     console.log(resp.getResponseCode().toString())
     console.log(resp.getContentText())
 
-    return (JSON.parse(resp.getContentText()) as { object: Sha }).object.sha
+    return (JSON.parse(resp.getContentText()) as { object: Response }).object.sha
 }
 
 function createTree(u: string, pat: string, fileName: string, blobSha: string, baseSha: string): string {
@@ -104,7 +104,7 @@ function createTree(u: string, pat: string, fileName: string, blobSha: string, b
     console.log(resp.getResponseCode().toString())
     console.log(resp.getContentText())
 
-    return (JSON.parse(resp.getContentText()) as Sha).sha
+    return (JSON.parse(resp.getContentText()) as Response).sha
 }
 
 function createCommit(u: string, pat: string, treeSha: string, parentSha: string): string {
@@ -127,7 +127,7 @@ function createCommit(u: string, pat: string, treeSha: string, parentSha: string
     console.log(resp.getResponseCode().toString())
     console.log(resp.getContentText())
 
-    return (JSON.parse(resp.getContentText()) as Sha).sha
+    return (JSON.parse(resp.getContentText()) as Response).sha
 }
 
 function updateBranch(u: string, pat: string, newBranchName: string, commitSha: string) {
