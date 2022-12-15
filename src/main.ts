@@ -22,7 +22,7 @@ class GitHub {
         this.pat = pat
     }
 
-    doRequest(url: string, method: "post" | "patch" | "get", payload: object): Response {
+    doRequest<T=Response>(url: string, method: "post" | "patch" | "get", payload: object): T {
         const resp = UrlFetchApp.fetch(url, {
             method: method,
             contentType: "application/json",
@@ -36,7 +36,7 @@ class GitHub {
         console.log(resp.getResponseCode().toString())
         console.log(resp.getContentText())
 
-        return (JSON.parse(resp.getContentText()) as Response)
+        return (JSON.parse(resp.getContentText()) as T)
     }
 }
 
@@ -67,25 +67,11 @@ function getTree(u: string, pat: string, branchName: string): string {
 
 
 function createBranch(u: string, pat: string, newBranchName: string, baseSha: string): string {
-    const payload = {
+    const resp = (new GitHub(pat)).doRequest<{ object: Response }>(u + '/git/refs', "post", {
         "ref": "refs/heads/" + newBranchName,
         "sha": baseSha,
-    }
-    const url = u + '/git/refs'
-    const resp = UrlFetchApp.fetch(url, {
-        method: "post",
-        contentType: "application/json",
-        payload: JSON.stringify(payload),
-        headers: {
-            "authorization": `Bearer ${pat}`,
-            "X-GitHub-Api-Version": "2022-11-28",
-            "Accept": "application/vnd.github+json"
-        },
     })
-    console.log(resp.getResponseCode().toString())
-    console.log(resp.getContentText())
-
-    return (JSON.parse(resp.getContentText()) as { object: Response }).object.sha
+    return resp.object.sha
 }
 
 function createTree(u: string, pat: string, fileName: string, blobSha: string, baseSha: string): string {
