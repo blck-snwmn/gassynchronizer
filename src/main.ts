@@ -24,7 +24,8 @@ class GitHub {
         this.baseURL = `https://api.github.com/repos/${username}/${repo}`
     }
 
-    doRequest<T = Response>(url: string, method: "post" | "patch" | "get", payload: object): T {
+    doSimpleRequest(url: string, method: "post" | "patch" | "get", payload: object):GoogleAppsScript.URL_Fetch.HTTPResponse{
+        console.log(payload)
         const options: GoogleAppsScript.URL_Fetch.URLFetchRequestOptions = method === 'get' ? {
             method: method,
             headers: {
@@ -44,7 +45,11 @@ class GitHub {
         const resp = UrlFetchApp.fetch(url, options)
         console.log(resp.getResponseCode().toString())
         console.log(resp.getContentText())
+        return resp
+    }
 
+    doRequest<T = Response>(url: string, method: "post" | "patch" | "get", payload: object): T {
+        const resp = this.doSimpleRequest(url, method, payload)
         return (JSON.parse(resp.getContentText()) as T)
     }
 
@@ -157,7 +162,7 @@ function call() {
     const username = "blck-snwmn"
     const repo = "github-playground"
     const g = new GitHub(pat, username, repo)
-    g.doRequest<{}>(g.baseURL+"/actions/workflows/json.yml/dispatches", "post", { ref: "main", inputs: { "json": json } })
+    g.doSimpleRequest(g.baseURL+"/actions/workflows/json.yml/dispatches", "post", { ref: "main", inputs: { "json": json } })
 }
 
 function onOpen() {
