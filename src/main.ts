@@ -16,6 +16,24 @@ function serialize(sheet: GoogleAppsScript.Spreadsheet.Sheet) {
     return JSON.stringify(js)
 }
 
+function genRecord(sheet: GoogleAppsScript.Spreadsheet.Sheet) :Record<string, string>[]{
+    const x = sheet.getRange('A:C')
+    const v = x.getValues().map(v => v.map(String))
+    const [jsonkeys, ...values] = v // head(jsonkeys) is json key
+    let js: Record<string, string>[] = [];
+    for (const vs of values) {
+        let j: Record<string, string> = {}
+        if (vs[0] === '') {
+            break  // skip if cell value is empty
+        }
+        jsonkeys.forEach((v, i) => {
+            j[v] = vs[i]
+        })
+        js.push(j)
+    }
+    return js
+}
+
 class GitHub {
     pat: string
     baseURL: string
@@ -151,7 +169,7 @@ function call() {
         console.log(`failed: sheet(name is '${sheetName}') is not found.`)
         return
     }
-    const json = serialize(sheet)
+    const json = genRecord(sheet)
     console.log(json)
 
     const pat = PropertiesService.getScriptProperties().getProperty('GITHUB_PAT')
