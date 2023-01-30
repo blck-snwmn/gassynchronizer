@@ -104,7 +104,7 @@ class GitHub {
 
 type Response = { sha: string }
 
-function main() {
+function push() {
     const sheetName = 'master'
     const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
     const sheet = spreadsheet.getSheetByName(sheetName)
@@ -140,5 +140,5 @@ function main() {
 
 function onOpen() {
     const sheet = SpreadsheetApp.getActiveSpreadsheet();
-    sheet.addMenu("メニュー", [{ name: "json", functionName: "main" }]);
+    sheet.addMenu("メニュー", [{ name: "push", functionName: "push" }]);
 }
