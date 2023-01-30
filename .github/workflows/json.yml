@@ -1,0 +1,14 @@
+ name: create json w/input
+ 
+ on:
+   workflow_dispatch:
+     inputs:
+       json:
+         description: 'json input'
+         required: true
+ 
+ jobs:
+   hello_job:
+     runs-on: ubuntu-18.04
+     steps:
+       - run: echo "hello, ${{ github.event.inputs.json }}"
