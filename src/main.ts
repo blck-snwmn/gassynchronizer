@@ -138,7 +138,30 @@ function push() {
     g.updateBranch(branchName, commitSha)
 }
 
+function call() {
+    const sheetName = 'master'
+    const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+    const sheet = spreadsheet.getSheetByName(sheetName)
+    if (sheet === null) {
+        console.log(`failed: sheet(name is '${sheetName}') is not found.`)
+        return
+    }
+    const json = serialize(sheet)
+    console.log(json)
+
+    const pat = PropertiesService.getScriptProperties().getProperty('GITHUB_PAT')
+    if (pat === null) {
+        console.log("failed: `GITHUB_PAT` property is not found.")
+        return
+    }
+    const username = "blck-snwmn"
+    const repo = "github-playground"
+    const g = new GitHub(pat, username, repo)
+    g.doRequest<{}>("/actions/workflows/json.yml/dispatches", "post", { ref: "main", inputs: { "json": json } })
+}
+
 function onOpen() {
     const sheet = SpreadsheetApp.getActiveSpreadsheet();
     sheet.addMenu("メニュー", [{ name: "push", functionName: "push" }]);
+    sheet.addMenu("メニュー", [{ name: "call", functionName: "call" }]);
 }
