@@ -167,6 +167,8 @@ function call() {
 
 function onOpen() {
     const sheet = SpreadsheetApp.getActiveSpreadsheet();
-    sheet.addMenu("メニュー", [{ name: "push", functionName: "push" }]);
-    sheet.addMenu("メニュー", [{ name: "call", functionName: "call" }]);
+    sheet.addMenu("メニュー", [
+        { name: "push", functionName: "push" },
+        { name: "call", functionName: "call" }
+    ]);
 }
