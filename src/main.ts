@@ -157,7 +157,7 @@ function call() {
     const username = "blck-snwmn"
     const repo = "github-playground"
     const g = new GitHub(pat, username, repo)
-    g.doRequest<{}>("/actions/workflows/json.yml/dispatches", "post", { ref: "main", inputs: { "json": json } })
+    g.doRequest<{}>(g.baseURL+"/actions/workflows/json.yml/dispatches", "post", { ref: "main", inputs: { "json": json } })
 }
 
 function onOpen() {
