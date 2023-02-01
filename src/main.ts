@@ -162,13 +162,32 @@ function call() {
     const username = "blck-snwmn"
     const repo = "github-playground"
     const g = new GitHub(pat, username, repo)
-    g.doSimpleRequest(g.baseURL+"/actions/workflows/json.yml/dispatches", "post", { ref: "main", inputs: { "json": json } })
+    g.doSimpleRequest(g.baseURL + "/actions/workflows/json.yml/dispatches", "post", { ref: "main", inputs: { "json": json } })
+}
+
+// showDialog show html dialog
+function showDialog() {
+    var html = HtmlService.createHtmlOutputFromFile('dialog');
+    SpreadsheetApp.getUi().showModalDialog(html, "CSVアップロード");
+}
+
+// generateForDownload is called from html dialog
+function generateForDownload() {
+    const sheetName = 'master'
+    const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+    const sheet = spreadsheet.getSheetByName(sheetName)
+    if (sheet === null) {
+        console.log(`failed: sheet(name is '${sheetName}') is not found.`)
+        return
+    }
+    return serialize(sheet)
 }
 
 function onOpen() {
     const sheet = SpreadsheetApp.getActiveSpreadsheet();
     sheet.addMenu("メニュー", [
         { name: "push", functionName: "push" },
-        { name: "call", functionName: "call" }
+        { name: "call", functionName: "call" },
+        { name: "download", functionName: "showDialog" },
     ]);
 }

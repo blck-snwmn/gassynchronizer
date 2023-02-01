@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <base target="_top">
+
+</head>
+
+<body>
+  <div>
+    <input type="button" onClick="f()" value="download">
+  </div>
+  <script>
+    function f() {
+      google.script.run.withSuccessHandler(function (str) {
+        const link = document.createElement('a');
+        link.download = 'data.json'; // file name
+        const blob = new Blob([str], {
+          type: "application/json",
+        });
+        link.href = window.URL.createObjectURL(blob);
+        link.click();
+      }).generateForDownload();
+    }
+  </script>
+</body>
+
+</html>
