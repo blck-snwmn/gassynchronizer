@@ -24,7 +24,7 @@ class GitHub {
         this.baseURL = `https://api.github.com/repos/${username}/${repo}`
     }
 
-    doSimpleRequest(url: string, method: "post" | "patch" | "get", payload: object):GoogleAppsScript.URL_Fetch.HTTPResponse{
+    doSimpleRequest(url: string, method: "post" | "patch" | "get", payload: object): GoogleAppsScript.URL_Fetch.HTTPResponse {
         console.log(payload)
         const options: GoogleAppsScript.URL_Fetch.URLFetchRequestOptions = method === 'get' ? {
             method: method,
