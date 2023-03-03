@@ -1,7 +1,7 @@
 function serialize(sheet: GoogleAppsScript.Spreadsheet.Sheet): string {
   const x = sheet.getRange("A:C");
-  const v = x.getValues().map((vv) => vv.map(String));
-  const [jsonkeys, ...values] = v; // head(jsonkeys) is json key
+  // head(jsonkeys) is json key
+  const [jsonkeys, ...values] = x.getValues().map((vv) => vv.map(String));
   const js = values.filter((vs) => vs[0] !== "").map((vs) => {
     const j: Record<string, string> = {};
     jsonkeys.forEach((k, i) => {
@@ -105,16 +105,19 @@ class GitHub {
 
 type Response = { sha: string };
 
-// eslint-disable-next-line  @typescript-eslint/no-unused-vars
-function push() {
-  const sheetName = "master";
+function getSheet(sheetName: string): GoogleAppsScript.Spreadsheet.Sheet {
   const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
   const sheet = spreadsheet.getSheetByName(sheetName);
   if (sheet === null) {
     console.log(`failed: sheet(name is '${sheetName}') is not found.`);
-    return;
+    throw new Error("sheet does not exist");
   }
-  const json = serialize(sheet);
+  return sheet;
+}
+
+// eslint-disable-next-line  @typescript-eslint/no-unused-vars
+function push() {
+  const json = serialize(getSheet("master"));
   console.log(json);
 
   const pat = PropertiesService.getScriptProperties().getProperty("GITHUB_PAT");
@@ -142,14 +145,7 @@ function push() {
 
 // eslint-disable-next-line  @typescript-eslint/no-unused-vars
 function call() {
-  const sheetName = "master";
-  const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
-  const sheet = spreadsheet.getSheetByName(sheetName);
-  if (sheet === null) {
-    console.log(`failed: sheet(name is '${sheetName}') is not found.`);
-    return;
-  }
-  const json = serialize(sheet);
+  const json = serialize(getSheet("master"));
   console.log(json);
 
   const pat = PropertiesService.getScriptProperties().getProperty("GITHUB_PAT");
@@ -173,14 +169,7 @@ function showDialog() {
 // generateForDownload is called from html dialog
 // eslint-disable-next-line  @typescript-eslint/no-unused-vars
 function generateForDownload(): string {
-  const sheetName = "master";
-  const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
-  const sheet = spreadsheet.getSheetByName(sheetName);
-  if (sheet === null) {
-    console.log(`failed: sheet(name is '${sheetName}') is not found.`);
-    throw new Error("sheet does not exist");
-  }
-  return serialize(sheet);
+  return serialize(getSheet("master"));
 }
 
 // eslint-disable-next-line  @typescript-eslint/no-unused-vars
