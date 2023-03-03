@@ -2,7 +2,7 @@ function serialize(sheet: GoogleAppsScript.Spreadsheet.Sheet): string {
   const x = sheet.getRange("A:C");
   const v = x.getValues().map((vv) => vv.map(String));
   const [jsonkeys, ...values] = v; // head(jsonkeys) is json key
-  const js = values.filter((vs) => vs[0] === "").map((vs) => {
+  const js = values.filter((vs) => vs[0] !== "").map((vs) => {
     const j: Record<string, string> = {};
     jsonkeys.forEach((k, i) => {
       j[k] = vs[i];
