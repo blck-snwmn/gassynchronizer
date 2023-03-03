@@ -1,7 +1,7 @@
 name: reviewdog
-  push:
-    branches:
-      - main
+push:
+  branches:
+    - main
 jobs:
   eslint:
     name: runner / eslint
