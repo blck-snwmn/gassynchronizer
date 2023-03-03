@@ -10,6 +10,7 @@ module.exports = {
     ecmaVersion: "latest",
     sourceType: "module",
     project: "./tsconfig.eslint.json",
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     tsconfigRootDir: __dirname,
   },
   ignorePatterns: ["dist"],
@@ -21,5 +22,7 @@ module.exports = {
   rules: {
     "import/prefer-default-export": "off",
     "@typescript-eslint/quotes": ["error", "double"],
+
+    "no-console": "off",
   },
 };

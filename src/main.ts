@@ -1,18 +1,14 @@
-function serialize(sheet: GoogleAppsScript.Spreadsheet.Sheet) {
+function serialize(sheet: GoogleAppsScript.Spreadsheet.Sheet): string {
   const x = sheet.getRange("A:C");
-  const v = x.getValues().map((v) => v.map(String));
+  const v = x.getValues().map((vv) => vv.map(String));
   const [jsonkeys, ...values] = v; // head(jsonkeys) is json key
-  const js: Record<string, string>[] = [];
-  for (const vs of values) {
+  const js = values.filter((vs) => vs[0] === "").map((vs) => {
     const j: Record<string, string> = {};
-    if (vs[0] === "") {
-      break; // skip if cell value is empty
-    }
-    jsonkeys.forEach((v, i) => {
-      j[v] = vs[i];
+    jsonkeys.forEach((k, i) => {
+      j[k] = vs[i];
     });
-    js.push(j);
-  }
+    return j;
+  });
   return JSON.stringify(js);
 }
 
@@ -109,6 +105,7 @@ class GitHub {
 
 type Response = { sha: string };
 
+// eslint-disable-next-line  @typescript-eslint/no-unused-vars
 function push() {
   const sheetName = "master";
   const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
@@ -143,6 +140,7 @@ function push() {
   g.updateBranch(branchName, commitSha);
 }
 
+// eslint-disable-next-line  @typescript-eslint/no-unused-vars
 function call() {
   const sheetName = "master";
   const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
@@ -166,23 +164,26 @@ function call() {
 }
 
 // showDialog show html dialog
+// eslint-disable-next-line  @typescript-eslint/no-unused-vars
 function showDialog() {
   const html = HtmlService.createHtmlOutputFromFile("dialog");
   SpreadsheetApp.getUi().showModalDialog(html, "CSVアップロード");
 }
 
 // generateForDownload is called from html dialog
-function generateForDownload() {
+// eslint-disable-next-line  @typescript-eslint/no-unused-vars
+function generateForDownload(): string {
   const sheetName = "master";
   const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
   const sheet = spreadsheet.getSheetByName(sheetName);
   if (sheet === null) {
     console.log(`failed: sheet(name is '${sheetName}') is not found.`);
-    return;
+    throw new Error("sheet does not exist");
   }
   return serialize(sheet);
 }
 
+// eslint-disable-next-line  @typescript-eslint/no-unused-vars
 function onOpen() {
   const sheet = SpreadsheetApp.getActiveSpreadsheet();
   sheet.addMenu("メニュー", [
