@@ -7,4 +7,4 @@ on:
 
 jobs:
   test-lint:
-    uses: blck-snwmn/share-workflows/.github/workflows/resuable-eslint@main
+    uses: blck-snwmn/share-workflows/.github/workflows/resuable-eslint.yml@main
