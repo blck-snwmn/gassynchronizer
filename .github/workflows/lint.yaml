@@ -14,3 +14,6 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           reporter: github-pr-review # Change reporter.
+jobs:
+  test-lint:
+    uses: blck-snwmn/share-workflows/.github/workflows/resuable-eslint@main
