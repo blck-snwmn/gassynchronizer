@@ -4,16 +4,7 @@ on:
   push:
     branches:
       - main
-jobs:
-  eslint:
-    name: runner / eslint
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: reviewdog/action-eslint@v1
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          reporter: github-pr-review # Change reporter.
+
 jobs:
   test-lint:
     uses: blck-snwmn/share-workflows/.github/workflows/resuable-eslint@main
