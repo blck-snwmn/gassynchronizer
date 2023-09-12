@@ -28,7 +28,11 @@
       // show gas data
       google.script.run.withSuccessHandler(function (str) {
         const d = document.getElementById("data");
-        d.innerHTML = str;
+        JSON.parse(str).forEach((e) => {
+          const dd = document.createElement("div");
+          dd.innerHTML = e;
+          d.appendChild(dd);
+        });
       }).generateForDownload();
     });
   </script>
