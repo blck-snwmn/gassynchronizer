@@ -163,7 +163,7 @@ function call() {
 // eslint-disable-next-line  @typescript-eslint/no-unused-vars
 function showDialog() {
   const html = HtmlService.createHtmlOutputFromFile("dialog");
-  SpreadsheetApp.getUi().showModalDialog(html, "CSVアップロード");
+  SpreadsheetApp.getUi().showModalDialog(html, "CSVダウンロード");
 }
 
 // generateForDownload is called from html dialog
