@@ -10,6 +10,8 @@
   <div>
     <input type="button" onClick="f()" value="download">
   </div>
+  <div id="data">
+  </div>
   <script>
     function f() {
       google.script.run.withSuccessHandler(function (str) {
@@ -22,6 +24,13 @@
         link.click();
       }).generateForDownload();
     }
+    window.addEventListener("load", (event) => {
+      // show gas data
+      google.script.run.withSuccessHandler(function (str) {
+        const d = document.getElementById("data");
+        d.innerHTML = str;
+      }).generateForDownload();
+    });
   </script>
 </body>
 
