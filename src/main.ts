@@ -6,9 +6,9 @@ function serialize(sheet: GoogleAppsScript.Spreadsheet.Sheet): string {
 		.filter((vs) => vs[0] !== "")
 		.map((vs) => {
 			const j: Record<string, string> = {};
-			jsonkeys.forEach((k, i) => {
-				j[k] = vs[i];
-			});
+			for (let i = 0; i < jsonkeys.length; i += 1) {
+				j[jsonkeys[i]] = vs[i];
+			}
 			return j;
 		});
 	return JSON.stringify(js);
