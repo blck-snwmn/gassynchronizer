@@ -11,7 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@types/google-apps-script": "^1.0.79"
+    "@types/google-apps-script": "^1.0.82"
   },
   "devDependencies": {
     "@biomejs/biome": "1.5.3"
